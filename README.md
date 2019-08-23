@@ -28,20 +28,20 @@ To download Universal Dependencies and convert it to the expected format, run:
 ./download_ud.sh
 ```
 
-This will download the `37` UD treebanks and put them in `data/ud_v1.2`, organized in sub-directories by ISO code:
+This will download the 37 UD treebanks and put them in `data/ud_v1.2`, organized in sub-directories by ISO code:
 
 ```
-ud_v1.2/                                                                                                                     
+ud_v1.2/
 ├── ar
 |  ├── test.conllu
-|  ├── train.conllu
-|  └── valid.conllu
-├── …
-├── ta                                                                                                                       
-    ├── test.conllu
-    ├── train.conllu
-    └── valid.conllu
-```    
+|  ├── train.conllu
+|  └── valid.conllu
+├── ...
+├── ta
+    ├── test.conllu
+    ├── train.conllu
+    └── valid.conllu
+```
 
 To download Galactic Dependencies and convert it to the expected format, follow the instructions at https://github.com/gdtreebank/gdtreebank to download and extract the treebanks (only the substrates for [training languages](experiments/wang_eisner_udv1.py) are needed).
 
@@ -54,18 +54,18 @@ python preprocess/convert_gd.py \
   --output-dir data/gd_v1.0
 ```
 
-This will create a directory named `data/gd_v1.0` with `8,820` GD languages:
+This will create a directory named `data/gd_v1.0` with 8,820 GD languages:
 
 ```
-gd_v1.0/                                                                                                                     
+gd_v1.0/
 ├── gd_ar
-|  ├── train.conllu
-|  └── train.hdf5
-├── …
-├── gd_pt~pt@V                                                                                                               
-    ├── train.conllu
-    └── train.hdf5
-``` 
+|  ├── train.conllu
+|  └── train.hdf5
+├── ...
+├── gd_pt~pt@V
+    ├── train.conllu
+    └── train.hdf5
+```
 The `train.hdf5` files contain preprocessed versions (tensorized) of the treebanks, and allow for fairly quick disk-based random access during training.
 
 The typology features used in the experiments are provided in the `typologies` directory. The original (discrete, human-readable) WALS features can be found in `typologies/wals_mapping_udv1.pkl.gz`.
@@ -93,6 +93,17 @@ With arguments:
 ```
 
 This will print out a command, or a list of commands, to execute. You can then execute it via `eval $(...)` or by piping into the `experiments/launch.py` [script](experiments/launch.py) which reads in the commands and schedules them across your available GPUs (specified with `--devices`).
+
+#### Running with Galactic Dependencies
+
+If testing with GD, please add the flag `--gd-patterns '"data/gd_v1.0/*"'` to add all of the GD languages into training. To use a different subset, specify a different list of glob patterns (e.g. `--gd-patterns data/gd_v1.0/gd_it~*~en@V data/gd_v1.0/gd_de~pt@N*`).
+
+By default, the training routine will sample a batch from UD languages with probability `beta` and from GD languages with probability `1 - beta`. Set the flag `--beta` to change this.
+
+Best practices:
+- UD data is loaded into memory whereas GD data is read from disk. For best speed performance, set the number of asyncronous data loading processes to 10-20 via `--num-workers 20`.
+- Increase the steps between evaluations by setting `--eval-interval` to 10-20K.
+- Get better stability for the longer training times with Adam by enabling `amsgrad` and increasing `eps` by setting `--optimizer adam,amsgrad=true,eps=1e-3`.
 
 ### TODO:
 - [ ] Typology as Quantization

@@ -612,7 +612,7 @@ def load_multi_source_data(args, dicos=None):
                            even_sampling=args.even_sampling,
                            loop=True)
     else:
-        None
+        gd_iter = None
     valid_iter = iterator(valid_trees)
     test_iter = iterator(test_trees)
     if prepare_target:

@@ -38,7 +38,8 @@ class Trainer:
 
     def check_loss(self, loss):
         if loss.sum() != loss.sum():
-            logger.fatal('Encountered NaN loss!')
+            logger.critical('Encountered NaN loss!')
+            exit()
 
     def get_loss(self, arc_scores, heads, deprel_scores, deprels):
         arc_loss = self.cross_entropy(arc_scores, heads)
